@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Event.h"
-#include "sstream"
 
 namespace Hazel {
 
+	class A{};
+	class A{};
 	class HAZEL_API MouseMovedEvent : public Event
 	{
 	public:
