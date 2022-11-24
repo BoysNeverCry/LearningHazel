@@ -4,8 +4,7 @@
 
 namespace Hazel {
 
-	class A{};
-	class A{};
+
 	class HAZEL_API MouseMovedEvent : public Event
 	{
 	public:
