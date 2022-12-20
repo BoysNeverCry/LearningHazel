@@ -18,7 +18,7 @@ namespace Hazel {
 		virtual void OnImGuiRender() override;
 
 
-		void Begin();
+		void Begin();//¸ÉÊ²Ã´µÄ£¿
 		void End();
 
 
