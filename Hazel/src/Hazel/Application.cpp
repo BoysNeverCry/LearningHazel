@@ -57,8 +57,6 @@ namespace Hazel {
 			if (e.Handled)
 				break;
 		}
-
-
 	}
 
 	void Application::Run()
