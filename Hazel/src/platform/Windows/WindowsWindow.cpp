@@ -71,7 +71,7 @@ namespace Hazel {
 				data.Height = height;
 
 				WindowResizeEvent event(width, height);
-				data.EventCallback(event);
+				data.EventCallback(event);//这里调用的就是OnEvent，EventCallback在app的初始化中被设置为App::OnEvent()
 			});
 
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
