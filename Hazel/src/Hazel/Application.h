@@ -7,13 +7,10 @@
 #include "Events/Event.h"
 #include "Hazel\Events\ApplicationEvent.h"
 
+#include "hazel/Core/Timestep.h"
+
 #include "Hazel/ImGui/ImGuiLayer.h"
 
-#include "Hazel/Renderer/Shader.h"
-#include "Hazel/Renderer/Buffer.h"
-#include "Hazel/Renderer/VertexArray.h"
-
-#include "Hazel/Renderer/OrthographicCamera.h"
 namespace Hazel {
 
 	class  HAZEL_API Application
@@ -40,7 +37,7 @@ namespace Hazel {
 		bool m_Running = true;
 		LayerStack  m_LayerStack;
 
-
+		float m_LastFrameTime = 0.0f;
 		
 	private:
 		static Application* s_Instance;
