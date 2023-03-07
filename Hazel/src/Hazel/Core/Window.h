@@ -2,7 +2,7 @@
 
 #include "hzpch.h"
 
-#include "Hazel/Core.h"
+#include "Hazel/Core/Core.h"
 #include "Hazel/Events/Event.h"
 
 namespace Hazel
@@ -16,7 +16,7 @@ namespace Hazel
 
 		WindowProps(const std::string& title = "Hazel Engine",
 			unsigned int width = 1440,
-			unsigned int height = 960)
+			unsigned int height = 810)
 			: Title(title), Width(width), Height(height)
 		{
 		}

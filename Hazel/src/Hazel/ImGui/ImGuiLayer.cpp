@@ -8,7 +8,7 @@
 //#include "Platform/OpenGL/ImGuiOpenGLRenderer.h"
 
 
-#include "Hazel\Application.h"
+#include "Hazel/Core/Application.h"
 
 // TEMPERARY
 #include "GLFW/glfw3.h"

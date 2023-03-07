@@ -12,6 +12,11 @@ namespace Hazel {
 		RenderCommand::Init();
 	}
 
+	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+	{
+		RenderCommand::SetViewport(0, 0, width, height);
+	}
+
 	void Renderer::BeginScene(OrthographicCamera& camera)
 	{//保证我们的shader使用了那些正确的uniforms，这些uniforms确定了：environmentmap、cubemap、camera细节等等
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();

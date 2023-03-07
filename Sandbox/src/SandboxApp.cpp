@@ -14,7 +14,7 @@ class ExampleLayer : public Hazel::Layer
 {
 public:
 	ExampleLayer()
-		: Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f), m_CameraPosition(0.0f)/*,m_SquarePosition(0.0f)*/
+		: Layer("Example"), m_CameraController(1280.0f / 720.0f,true)/*,m_SquarePosition(0.0f)*/
 	{
 		// Vertex Array
 		// Vertex Buffer
@@ -144,7 +144,7 @@ public:
 
 		m_Texture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
 
-		m_ChernoLogoTexture = Hazel::Texture2D::Create("assets/textures/ChernoLogo.png");
+		m_ChernoLogoTexture = Hazel::Texture2D::Create("assets/textures/grass.png");
 
 		std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->Bind();
 		std::dynamic_pointer_cast<Hazel::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
@@ -152,42 +152,14 @@ public:
 
 	void OnUpdate(Hazel::Timestep ts) override
 	{
-		HZ_TRACE("Delta time: {0}s ({1}ms)", ts.GetSeconds(), ts.GetMilliseconds());
+		// Update
+		m_CameraController.OnUpdate(ts);
 
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT))
-			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
-		else if (Hazel::Input::IsKeyPressed(HZ_KEY_RIGHT))
-			m_CameraPosition.x += m_CameraMoveSpeed * ts;
-
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_DOWN))
-			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
-		else if (Hazel::Input::IsKeyPressed(HZ_KEY_UP))
-			m_CameraPosition.y += m_CameraMoveSpeed * ts;
-
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_A))
-			m_CameraRotation -= m_CameraRotationSpeed * ts;
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_D))
-			m_CameraRotation += m_CameraRotationSpeed * ts;
-
-		/*if (Hazel::Input::IsKeyPressed(HZ_KEY_J))
-			m_SquarePosition.x -= m_SquareMoveSpeed * ts;
-		else if (Hazel::Input::IsKeyPressed(HZ_KEY_L))
-			m_SquarePosition.x += m_SquareMoveSpeed * ts;*/
-
-		/*if (Hazel::Input::IsKeyPressed(HZ_KEY_I))
-			m_SquarePosition.y += m_SquareMoveSpeed * ts;
-		else if (Hazel::Input::IsKeyPressed(HZ_KEY_K))
-			m_SquarePosition.y -= m_SquareMoveSpeed * ts;*/
-
+		// Render
 		Hazel::RenderCommand::SetClearColor({ 0.1, 0.13, 0.13, 1 });
 		Hazel::RenderCommand::Clear();
 
-
-		//尝试改变相机位置
-		m_Camera.SetPosition(m_CameraPosition);
-		m_Camera.SetRotation(m_CameraRotation);
-
-		Hazel::Renderer::BeginScene(m_Camera);
+		Hazel::Renderer::BeginScene(m_CameraController.GetCamera());
 
 		
 		static glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));//缩放变换矩阵
@@ -234,13 +206,16 @@ public:
 		ImGui::End();
 	}
 
-	void OnEvent(Hazel::Event& event) override
+	void OnEvent(Hazel::Event& e) override
 	{
 		//Event Dispatching
 		/*Hazel::EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<Hazel::KeyPressedEvent>(HZ_BIND_EVENT_FN(ExampleLayer::OnkeyPressedEvent));*/
 		//Dispatch的工作：如果event的事件类型与形参Hazel::KeyPressedEvent相同，
 				//那么执行函数对象OnkeyPressedEvent对event进行处理，否则不进行处理
+		m_CameraController.OnEvent(e);
+
+		
 	
 	}
 
@@ -273,12 +248,9 @@ public:
 		Hazel::Ref<Hazel::Texture2D> m_Texture; 
 		Hazel::Ref<Hazel::Texture2D> m_ChernoLogoTexture;
 
-		Hazel::OrthographicCamera m_Camera;
-		glm::vec3 m_CameraPosition;
+		Hazel::OrthographicCameraController m_CameraController;
 
-		float m_CameraMoveSpeed = 5.0f; 
-		float m_CameraRotation = 0.0f;
-		float m_CameraRotationSpeed = 180.f;
+
 
 		glm::vec3 m_SquareColor = {0.2f,0.3f,0.7f};
 		/*glm::vec3 m_SquarePosition;

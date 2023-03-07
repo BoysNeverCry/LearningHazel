@@ -1,7 +1,7 @@
 #include "hzpch.h"
 #include "Application.h"
 
-#include "Hazel\Log.h"
+#include "Hazel/Core/Log.h"
 
 
 #include "Hazel/Renderer/Renderer.h"
@@ -55,6 +55,7 @@ namespace Hazel {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT_FN(OnWindowResize));
 		HZ_CORE_TRACE("{0}",e);
 
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
@@ -74,13 +75,18 @@ namespace Hazel {
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 
-			for (Layer* layer : m_LayerStack)
-				layer->OnUpdate(timestep);
+			if (!m_Minimized)
+			{
+				for (Layer* layer : m_LayerStack)
+					layer->OnUpdate(timestep);
 
+				
+			}
 			m_ImGuiLayer->Begin();
 			for (Layer* layer : m_LayerStack)
 				layer->OnImGuiRender();
 			m_ImGuiLayer->End();
+			
 			/*auto [x, y] = Input::GetMousePosition();
 			HZ_CORE_TRACE("{0},{1}", x, y);*/
 			
@@ -93,5 +99,19 @@ namespace Hazel {
 		m_Running = false;
 		return true;
 	}
+	bool Application::OnWindowResize(WindowResizeEvent& e)
+	{
+		//有几种情况，
+		//如果window被minimize，不应当继续进行渲染
+		if (e.GetWidth() == 0 || e.GetHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+		m_Minimized = false;
+		//我们会告诉framebuffer，窗口的大小被改变了
+		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 
+		return false;
+	}
 }
