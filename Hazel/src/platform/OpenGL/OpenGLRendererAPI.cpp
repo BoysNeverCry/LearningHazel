@@ -6,8 +6,12 @@
 namespace Hazel {
 	void OpenGLRendererAPI::Init()
 	{
+		HZ_PROFILE_FUNCTION();
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+		glEnable(GL_DEPTH_TEST);
 	}
 
 	void OpenGLRendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
@@ -28,6 +32,8 @@ namespace Hazel {
 	void OpenGLRendererAPI::DrawIndexed(const Hazel::Ref<VertexArray>& VertexArray)
 	{
 		glDrawElements(GL_TRIANGLES, VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
-	}
+		glBindTexture(GL_TEXTURE_2D, 0);//绑定id是0的GL_TEXTURE_2D纹理对象到当前激活的纹理单元（即之前activate的纹理单元）
+										//这里id是0,不对应任何纹理对象，所以作用是把当前激活的纹理单元上的纹理对象解绑
+	}	
 
 }
