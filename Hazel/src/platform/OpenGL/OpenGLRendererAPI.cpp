@@ -29,9 +29,10 @@ namespace Hazel {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	void OpenGLRendererAPI::DrawIndexed(const Hazel::Ref<VertexArray>& VertexArray)
+	void OpenGLRendererAPI::DrawIndexed(const Hazel::Ref<VertexArray>& VertexArray, uint32_t indexCount)
 	{
-		glDrawElements(GL_TRIANGLES, VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+		uint32_t count = indexCount ? VertexArray->GetIndexBuffer()->GetCount() : indexCount;
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
 		glBindTexture(GL_TEXTURE_2D, 0);//绑定id是0的GL_TEXTURE_2D纹理对象到当前激活的纹理单元（即之前activate的纹理单元）
 										//这里id是0,不对应任何纹理对象，所以作用是把当前激活的纹理单元上的纹理对象解绑
 	}	

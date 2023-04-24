@@ -32,7 +32,7 @@ public:
 		};
 
 		Hazel::Ref<Hazel::VertexBuffer> vertexBuffer;
-		vertexBuffer.reset(Hazel::VertexBuffer::Create(vertices, sizeof(vertices)));//把顶点数据加入到VertexBuffer中
+		vertexBuffer = (Hazel::VertexBuffer::Create(vertices, sizeof(vertices)));//把顶点数据加入到VertexBuffer中
 		Hazel::BufferLayout layout = {//配置顶点数据的BufferLayout，这是一个自定义类型对象
 			{ Hazel::ShaderDataType::Float3, "a_Position" },
 			{ Hazel::ShaderDataType::Float4, "a_Color" },
@@ -45,7 +45,7 @@ public:
 		*/
 		unsigned int indices[3] = { 0,1,2 };
 		Hazel::Ref<Hazel::IndexBuffer> indexBuffer;
-		indexBuffer.reset(Hazel::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));//创建索引缓冲区对象，并把索引数据传入
+		indexBuffer = (Hazel::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));//创建索引缓冲区对象，并把索引数据传入
 		m_VertexArray->SetIndexBuffer(indexBuffer);
 		///////////////////////////SQUARE//////////////////////
 		m_SquareVA = (Hazel::VertexArray::Create());
@@ -58,7 +58,7 @@ public:
 		};
 
 		Hazel::Ref<Hazel::VertexBuffer> squareVB;
-		squareVB.reset(Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
+		squareVB = (Hazel::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 		squareVB->SetLayout({//配置顶点数据的BufferLayout，这是一个自定义类型对象
 			{ Hazel::ShaderDataType::Float3, "a_Position" },
 			{ Hazel::ShaderDataType::Float2, "a_TexCoord" }
@@ -67,7 +67,7 @@ public:
 
 		unsigned int squareIndices[6] = { 0,1,2,2,3,0 };
 		Hazel::Ref<Hazel::IndexBuffer> squareIB;
-		squareIB.reset(Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		squareIB = (Hazel::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 
