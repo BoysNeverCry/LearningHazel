@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#中间文件不需要版本管理
+bin-int/
+
+#Profile性能文件不需要版本管理
+HazelProfile*.json
+
 # User-specific files
 *.rsuser
 *.suo
@@ -361,3 +367,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+*.json
+*.tlog

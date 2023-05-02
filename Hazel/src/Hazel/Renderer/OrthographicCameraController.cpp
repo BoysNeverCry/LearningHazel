@@ -8,7 +8,8 @@ namespace Hazel {
 
 
 	OrthographicCameraController::OrthographicCameraController(float aspectRatio,bool rotation)
-		:m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio* m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation)
+		//	个人感觉m_Camera不应该由m_Bounds来初始化，因为Bounds的边界会随着相机位置变化更新，但是camera的projection matrix 并不会。尽管这俩在初始时是同一个值
+		:m_AspectRatio(aspectRatio), m_Bounds({ -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel }), m_Camera(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top), m_Rotation(rotation)
 	{
 
 	}
@@ -58,16 +59,21 @@ namespace Hazel {
 
 		 m_ZoomLevel -= e.GetYOffset()  * 0.25f;
 		 m_ZoomLevel = std::max(m_ZoomLevel, 0.25f);
-		 m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
-		return false;
+		 m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel };
+		 m_Camera.SetProjection(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top);
+		 return false;
 	}
 
 	bool OrthographicCameraController::OnWindowResized(WindowResizeEvent& e)
 	{
 		HZ_PROFILE_FUNCTION();
 
-		m_AspectRatio = (float)e.GetWidth()/(float)e.GetHeight();
-		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
+		m_AspectRatio = (float)e.GetWidth()/ (float)e.GetHeight();
+		m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel };
+		m_Camera.SetProjection(m_Bounds.Left, m_Bounds.Right, m_Bounds.Bottom, m_Bounds.Top);
+		//m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel);
+		
+		//m_Camera.SetProjection(-(float)e.GetWidth()/900, (float)e.GetWidth()/900, -(float)e.GetHeight()/900, (float)e.GetHeight()/900);
 		return false;
 	}
 

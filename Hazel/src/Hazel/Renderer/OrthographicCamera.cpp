@@ -8,7 +8,7 @@ namespace Hazel {
 		:m_ProjectionMatrix(glm::ortho(left, right, bottom, top, -1.0f, 1.0f)),m_ViewMatrix(1.0f)
 	{
 		HZ_PROFILE_FUNCTION();
-
+		HZ_CORE_INFO("left:{0},right:{1},bottom:{2},left:{3}",left,right,bottom,top);
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 
