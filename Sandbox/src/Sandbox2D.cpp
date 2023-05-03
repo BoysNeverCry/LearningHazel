@@ -8,7 +8,7 @@
 
 
 Sandbox2D::Sandbox2D()
-	:Layer("Sandbox2D"), m_CameraController(1280.0f/720.0f)
+	:Layer("Sandbox2D"), m_CameraController(1280.0f/720.0f), m_ParticleSystem(1000)
 {
 
 }
@@ -18,11 +18,17 @@ void Sandbox2D::OnAttach()
 
 	m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
 
+	m_SpriteSheet = Hazel::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
+
+	m_TextureTable = Hazel::SubTexture2D::CreateFromCoords(m_SpriteSheet,{8,2},{128,128});
+	m_TextureStairs = Hazel::SubTexture2D::CreateFromCoords(m_SpriteSheet, { 1,11 }, { 128,128 });
+
+	
 	// Particle props init here
 	m_Particle.ColorBegin = { 254 / 255.0f, 212 / 255.0f, 123 / 255.0f, 1.0f };
 	m_Particle.ColorEnd = { 254 / 255.0f, 109 / 255.0f, 41 / 255.0f, 1.0f };
 	m_Particle.SizeBegin = 0.5f, m_Particle.SizeVariation = 0.3f, m_Particle.SizeEnd = 0.0f;
-	m_Particle.LifeTime = 5.0f;
+	m_Particle.LifeTime = 2.0f;
 	m_Particle.Velocity = { 0.0f, 0.0f };
 	m_Particle.VelocityVariation = { 3.0f, 1.0f };
 	m_Particle.Position = { 0.0f, 0.0f };
@@ -49,12 +55,13 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 
 	// Render
 	Hazel::Renderer2D::ResetStats();
+
 	{
 		HZ_PROFILE_SCOPE("Renderer Prep");
 		Hazel::RenderCommand::SetClearColor({ 0.1, 0.13, 0.13, 1 });
 		Hazel::RenderCommand::Clear();
 	}
-
+#if 0
 	{
 		static float rotation = 0.0f;
 		rotation += ts * 40.0f;
@@ -80,6 +87,8 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 		}
 		Hazel::Renderer2D::EndScene();
 	}
+#endif
+
 
 	if (Hazel::Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_LEFT))
 	{
@@ -93,12 +102,20 @@ void Sandbox2D::OnUpdate(Hazel::Timestep ts)
 		y = bounds.GetHeight() * 0.5f - (y / height) * bounds.GetHeight();
 		m_Particle.Position = { x + pos.x, y + pos.y };
 		//m_Particle.LifeTime = 5;
-		for (int i = 0; i < 50; i++)
+		for (int i = 0; i < 1; i++)
 			m_ParticleSystem.Emit(m_Particle);
 	}
 
+
+	
+
 	m_ParticleSystem.OnUpdate(ts);
 	m_ParticleSystem.OnRender(m_CameraController.GetCamera());
+
+	//Hazel::Renderer2D::BeginScene(m_CameraController.GetCamera());
+	//Hazel::Renderer2D::DrawQuad({ 0.0f, 0.0f, 1.0f }, { 1.0f,1.0f }, m_TextureStairs);
+	//Hazel::Renderer2D::DrawQuad({ 1.0f, 0.0f, 1.0f }, { 1.0f,1.0f }, m_TextureTable);
+	//Hazel::Renderer2D::EndScene();
 
 
 	//Hazel::Renderer2D::EndScene();
