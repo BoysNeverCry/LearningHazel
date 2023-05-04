@@ -60,6 +60,7 @@ namespace Hazel {
 
 		{
 			HZ_PROFILE_SCOPE("glfwCreateWindow");
+			glfwWindowHint(GLFW_SAMPLES, 4);//GLFW为多重采样MSAA功能提供多重采样缓冲
 			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		}
 		++s_GLFWWindowCount;
