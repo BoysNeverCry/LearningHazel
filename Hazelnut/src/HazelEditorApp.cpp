@@ -7,18 +7,18 @@
 
 namespace Hazel{
 
-	class HazelEditor : public Hazel::Application
+	class Hazelnut : public Hazel::Application
 	{
 	public:
-		HazelEditor()
-			: Application("Hazel Editor")
+		Hazelnut()
+			: Application("Hazelnut")
 		{
 			//PushLayer(new ExampleLayer());
 			PushLayer(new EditorLayer());
 			//PushLayer(new Hazel::ImGuiLayer());
 		}
 
-		~HazelEditor()
+		~Hazelnut()
 		{
 
 		}
@@ -28,7 +28,7 @@ namespace Hazel{
 
 	Hazel::Application* Hazel::CreateApplication()
 	{
-		return new HazelEditor();
+		return new Hazelnut();
 	}
 }
 
