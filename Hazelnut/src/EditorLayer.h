@@ -2,7 +2,7 @@
 
 #include "Hazel.h"
 
-namespace Hazel{
+namespace Hazel {
 
 	class EditorLayer :public Layer
 	{
@@ -25,6 +25,8 @@ namespace Hazel{
 
 		Hazel::Ref<Texture2D> m_CheckerboardTexture;
 		Hazel::Ref<Framebuffer> m_Framebuffer;
+
+		glm::vec2 m_ViewportSize = {0.0f, 0.0f};
 
 		glm::vec4 m_SquareColor = { 0.2f,0.3f,0.8f, 1.0f };
 #if MAPTILES

@@ -53,6 +53,12 @@ namespace Hazel {
 		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(OrthographicCameraController::OnWindowResized));
 	}
 
+	void OrthographicCameraController::OnResize(float width, float height)
+	{
+		m_AspectRatio = width / height;
+		CalculateView();
+	}
+
 	void OrthographicCameraController::CalculateView()
 	{
 		m_Bounds = { -m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel };
@@ -73,11 +79,8 @@ namespace Hazel {
 	{
 		HZ_PROFILE_FUNCTION();
 
-		m_AspectRatio = (float)e.GetWidth()/ (float)e.GetHeight();
-		CalculateView();
-		//m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel,m_ZoomLevel);
-		
-		//m_Camera.SetProjection(-(float)e.GetWidth()/900, (float)e.GetWidth()/900, -(float)e.GetHeight()/900, (float)e.GetHeight()/900);
+		//OnResize((float)e.GetWidth() , (float)e.GetHeight());
+	/*这里我觉得不应该再根据大窗口的长宽来调整相机的视野，Cherno还没有把这部分注释掉；以及我觉得调整Framebuffer是否应该从渲染逻辑中调整到事件处理的逻辑中！*/
 		return false;
 	}
 

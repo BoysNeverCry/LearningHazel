@@ -72,7 +72,10 @@ namespace Hazel {
 		ImGui::DestroyContext();
 	}
 
+	/*void ImGuiLayer::OnEvent(Event& e)
+	{
 
+	}*/
 
 
 

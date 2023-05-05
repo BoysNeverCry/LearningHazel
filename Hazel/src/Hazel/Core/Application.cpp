@@ -136,6 +136,7 @@ namespace Hazel {
 		}
 		m_Minimized = false;
 		//我们会告诉framebuffer，窗口的大小被改变了
+
 		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
 
 		return false;
