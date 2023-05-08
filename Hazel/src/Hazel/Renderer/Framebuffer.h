@@ -31,5 +31,7 @@ namespace Hazel {
 
 		static Ref<Framebuffer> Create(const FramebufferSpecification& spec);
 
+		virtual ~Framebuffer() =  default;
+
 	};
 }
