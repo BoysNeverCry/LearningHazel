@@ -90,7 +90,8 @@ namespace Hazel{
 		// Update
 		{
 			HZ_PROFILE_SCOPE("CameraController::OnUpdate");
-			m_CameraController.OnUpdate(ts);
+			if(m_ViewportFocused&&m_ViewportHovered)
+				m_CameraController.OnUpdate(ts);
 		}
 	
 
@@ -246,6 +247,14 @@ namespace Hazel{
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2{0,0});//设置边框为0
 		//为什么这操作保证了GetRegion得到的数值是大于0的？如果没有上面的语句，GetRegion的y值会小于0，这样在resize时创建新的纹理会报错
 		ImGui::Begin("Viewport");
+
+
+		m_ViewportFocused = ImGui::IsWindowFocused();//获取当前这个Viewport（Imgui window）是否被是focused
+		m_ViewportHovered = ImGui::IsWindowHovered();//获取当前这个Viewport（Imgui window）是否被是Hovered
+		//HZ_CORE_INFO("Focused:{0}",m_ViewportFocused);
+		//HZ_CORE_INFO("Hovered:{0}",m_ViewportHovered);
+		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
+				//如果没被focused或没被hovered（一旦鼠标离开viewport区域），就not blockEvents，即允许ImGuiLayer对ImGui::IO的事件（例如鼠标滚轮滑动）进行处理（其实是由ImGUi层没收该事件）
 
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
 		if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
