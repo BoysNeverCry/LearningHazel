@@ -6,6 +6,9 @@
 namespace Hazel {
 	class Entity
 	{
+	private:
+		entt::entity m_EntityHandle = entt::null;
+		Scene* m_Scene = nullptr;
 	public:
 		Entity() = default;
 		Entity(entt::entity handle, Scene* scene);
@@ -15,7 +18,9 @@ namespace Hazel {
 		T& AddComponent(Args&&... args)
 		{
 			HZ_CORE_ASSERT(!HasComponent<T>(), "Entity already has component!");
-			return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->OnComponentAdded<T>(*this, component);//在scene类下，为每个组件特化OnComponentAdded的方法，当添加组件后立即执行
+			return component;
 		}
 
 		template<typename T>
@@ -39,8 +44,18 @@ namespace Hazel {
 		}
 
 		operator bool() const { return m_EntityHandle != entt::null; }
-	private:
-		entt::entity m_EntityHandle{ 0 };
-		Scene* m_Scene = nullptr;
+		operator entt::entity() const { return m_EntityHandle; }
+		operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+
+		bool operator==(const Entity& other) const
+		{
+			return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene;
+		}
+
+		bool operator!=(const Entity& other) const
+		{
+			return !(*this == other);
+		}
+
 	};
 }

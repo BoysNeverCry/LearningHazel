@@ -42,32 +42,68 @@ namespace Hazel{
 	{
 		HZ_PROFILE_FUNCTION();
 
+		//创建纹理贴图
 		m_CheckerboardTexture = Hazel::Texture2D::Create("assets/textures/Checkerboard.png");
 
+		//创建帧缓冲配置，长：1280，宽：720，用此来初始化帧缓冲
 		Hazel::FramebufferSpecification fbSpec;
 		fbSpec.Width = 1280;
 		fbSpec.Height = 720;
 		m_Framebuffer = Hazel::Framebuffer::Create(fbSpec);
 
-		//Scene & Entity
+		//创建场景，
 		m_ActiveScene = CreateRef<Scene>();//Scene的构造函数，rigestry的wrapper
-
-		auto greenSquare = m_ActiveScene->CreateEntity("Green Square");//创建一个entity，并自动添加tag component
-		greenSquare.AddComponent<SpriteRendererComponent>(glm::vec4(0.0f,1.0f,0.0f,1.0f));//为entity添加component
+		
+		//初始化一些实体，Scene & Entity
+		auto greenSquare = m_ActiveScene->CreateEntity("Red Square");//创建一个entity，并自动添加tag component
+		greenSquare.AddComponent<SpriteRendererComponent>(glm::vec4(1.0f,0.5f,0.0f,1.0f));//为entity添加component
 
 		auto redSquare = m_ActiveScene->CreateEntity("Green Square");//创建一个entity，并自动添加tag component
-		redSquare.AddComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));//为entity添加component
-
-		m_SquareEntity = redSquare;
+		redSquare.AddComponent<SpriteRendererComponent>(glm::vec4(0.0f, 1.0f, 0.5f, 1.0f));//为entity添加component
 
 
-		m_CameraEntity = m_ActiveScene->CreateEntity("Camera Entity");
-		m_CameraEntity.AddComponent<CameraComponent>(glm::ortho(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+		//创建相机实体，并添加相机组件
+		m_CameraEntity = m_ActiveScene->CreateEntity("Camera A");
+		m_CameraEntity.AddComponent<CameraComponent>();
 
-		m_SecondCamera = m_ActiveScene->CreateEntity("Clip-Space Entity");
-		auto& cc = m_SecondCamera.AddComponent<CameraComponent>(glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f));
+		m_SecondCamera = m_ActiveScene->CreateEntity("Camera B");
+		auto& cc = m_SecondCamera.AddComponent<CameraComponent>();
 		cc.Primary = false;
 
+		//相机的控制脚本
+		class CameraController : public ScriptableEntity
+		{
+		public:
+			void OnCreate()
+			{
+
+			}
+
+			void OnDestroy()
+			{
+			}
+
+			void OnUpdate(Timestep ts)
+			{
+				auto& translation = GetComponent<TransformComponent>().Translation;//拿到同一个CameraEntity得Transform
+				float speed = 5.0f;
+
+				if (Input::IsKeyPressed(KeyCode::A))
+					translation.x -= speed * ts;
+				if (Input::IsKeyPressed(KeyCode::D))
+					translation.x += speed * ts;
+				if (Input::IsKeyPressed(KeyCode::W))
+					translation.y += speed * ts;
+				if (Input::IsKeyPressed(KeyCode::S))
+					translation.y -= speed * ts;
+		}
+	};
+		//为相机添加脚本组件，提供移动相机的功能
+		m_CameraEntity.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+		m_SecondCamera.AddComponent<NativeScriptComponent>().Bind<CameraController>();
+
+		//为UI面板，添加所绑定的场景，需要展示场景中存在的实体信息
+		m_SceneHierarchyPanel.SetContext(m_ActiveScene);
 
 	#if MAPTILES
 		m_SpriteSheet = Hazel::Texture2D::Create("assets/game/textures/RPGpack_sheet_2X.png");
@@ -92,8 +128,8 @@ namespace Hazel{
 		m_Particle.VelocityVariation = { 3.0f, 1.0f };
 		m_Particle.Position = { 0.0f, 0.0f };
 	#endif
-		m_CameraController.SetZoomLevel(5.0f);
-	
+		//m_CameraController.SetZoomLevel(5.0f);
+		
 		} 
 	void EditorLayer::OnDetach()
 	{
@@ -107,11 +143,15 @@ namespace Hazel{
 		HZ_PROFILE_FUNCTION();
 	
 	
-		// Update
+		//Resize frame buffer 当场景窗口发生变化后，viewposrtSize在上一帧的OnimguiRender更新，
+			//framesize需要因此进行调整，也就是openGL输出的帧缓冲（图像纹理附件的长款）
+			//也因此需要调整Scene中的相机组件的长宽比属性，正交相机的projection矩阵仅依赖于（长宽可视范围以及近远平面）
+		if (FramebufferSpecification spec = m_Framebuffer->GetSpecification();
+			m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f && // zero sized framebuffer is invalid
+			(spec.Width != m_ViewportSize.x || spec.Height != m_ViewportSize.y))
 		{
-			HZ_PROFILE_SCOPE("CameraController::OnUpdate");
-			if(m_ViewportFocused&&m_ViewportHovered)
-				m_CameraController.OnUpdate(ts);
+			m_Framebuffer->Resize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
+			m_ActiveScene->OnViewportResize((uint32_t)m_ViewportSize.x, (uint32_t)m_ViewportSize.y);
 		}
 	
 
@@ -242,6 +282,7 @@ namespace Hazel{
 				//ShowDockingDisabledMessage();
 		}
 
+		//菜单栏
 		if (ImGui::BeginMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -257,7 +298,12 @@ namespace Hazel{
 
 			ImGui::EndMenuBar();
 		}
-		ImGui::Begin("Settings");
+
+		//场景面板
+		m_SceneHierarchyPanel.OnImGuiRender();
+
+		//性能数据展示
+		ImGui::Begin("Rendering Stats");
 
 		auto stats = Hazel::Renderer2D::GetStats();
 		ImGui::Text("Renderer2D Stats:");
@@ -266,58 +312,27 @@ namespace Hazel{
 		ImGui::Text("Vertices: %d", stats.GetTotalVertexCount());
 		ImGui::Text("Indices: %d", stats.GetTotalIndexCount());
 
-
-		if(m_SquareEntity)
-		{
-
-			ImGui::Separator();
-			auto& tag = m_SquareEntity.GetComponent<TagComponent>().Tag;
-			ImGui::Text("%s",tag.c_str());
-
-			auto& squareColor = m_SquareEntity.GetComponent<SpriteRendererComponent>().Color;
-			ImGui::ColorEdit4("Square Color",glm::value_ptr(squareColor));
-			ImGui::Separator();
-
-		}
-
-		ImGui::DragFloat3("Camera Transform",
-			glm::value_ptr(m_CameraEntity.GetComponent<TransformComponent>().Transform[3]));
-
-		if (ImGui::Checkbox("Camera A", &m_PrimaryCamera))
-		{
-			m_CameraEntity.GetComponent<CameraComponent>().Primary = m_PrimaryCamera;
-			m_SecondCamera.GetComponent<CameraComponent>().Primary = !m_PrimaryCamera;
-		}
-
-
-		//ImGui::ColorEdit4("Square Color", glm::value_ptr(m_SquareColor));
+		
 
 		ImGui::End();
 
 
-		/* Create the viewport */
+		/*场景窗口*/
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2{0,0});//设置边框为0
 		//为什么这操作保证了GetRegion得到的数值是大于0的？如果没有上面的语句，GetRegion的y值会小于0，这样在resize时创建新的纹理会报错
 		ImGui::Begin("Viewport");
 
-
 		m_ViewportFocused = ImGui::IsWindowFocused();//获取当前这个Viewport（Imgui window）是否被是focused
 		m_ViewportHovered = ImGui::IsWindowHovered();//获取当前这个Viewport（Imgui window）是否被是Hovered
-		//HZ_CORE_INFO("Focused:{0}",m_ViewportFocused);
-		//HZ_CORE_INFO("Hovered:{0}",m_ViewportHovered);
+
 		Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportFocused || !m_ViewportHovered);
 				//如果没被focused或没被hovered（一旦鼠标离开viewport区域），就not blockEvents，即允许ImGuiLayer对ImGui::IO的事件（例如鼠标滚轮滑动）进行处理（其实是由ImGUi层没收该事件）
-
+		
+		
+		//获取可显示的窗口大小，并更新ViewportSize
 		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-		if (m_ViewportSize != *((glm::vec2*)&viewportPanelSize))
-		{
-			m_Framebuffer->Resize((uint32_t)viewportPanelSize.x, (uint32_t)viewportPanelSize.y);
-			m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
-
-			m_CameraController.OnResize(viewportPanelSize.x, viewportPanelSize.y);
-		}
-
-		//HZ_WARN("Viewport Size: {0}, {1}", viewportPanelSize.x, viewportPanelSize.y);
+		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+		//从opengl拿到帧缓冲id，并输出为ImGui的Image（图像标识符、图像大小、建材图像的uv坐标）
 		uint32_t textureID = m_Framebuffer->GetColorAttachmentRendererID();//如果上面Resize时重新绑定了纹理附件，那么这一次获取到的纹理附件ID对应的内存是没有正确内容的？？
 		ImGui::Image((void*)textureID, viewportPanelSize, ImVec2{ 0,1 }, ImVec2{ 1,0 });
 			

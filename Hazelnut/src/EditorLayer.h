@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel.h"
+#include "Panels/SceneHierarchyPanel.h"
 
 namespace Hazel {
 
@@ -25,7 +26,6 @@ namespace Hazel {
 
 		//Temp
 		Ref<Scene> m_ActiveScene;
-		Entity m_SquareEntity;
 		Entity m_CameraEntity;
 		Entity m_SecondCamera;
 
@@ -48,7 +48,7 @@ namespace Hazel {
 		uint32_t m_MapWidth, m_MapHeight;
 		std::unordered_map<char, Hazel::Ref<Hazel::SubTexture2D>> s_TextureMap;
 #endif
-
-
+		SceneHierarchyPanel m_SceneHierarchyPanel;
+		
 	};
 }
